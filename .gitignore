@@ -3,6 +3,7 @@
 __pycache__
 
 dump.rdb
-celerybeat-schedule
+celerybeat-schedule*
+wsgi.ini
 apns
 stitch.db

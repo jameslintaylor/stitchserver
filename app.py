@@ -2,10 +2,8 @@ import os
 import flask
 import peewee
 import apns
-import model
 import utils
 import moya
-import endpoints
 
 APP_DIR = os.path.dirname(os.path.realpath(__file__))
 DATABASE = 'sqliteext:///{}'.format(os.path.join(APP_DIR, 'stitch.db'))
@@ -13,6 +11,17 @@ DEBUG = True
 
 app = flask.Flask(__name__)
 app.config.from_object(__name__)
+
+import endpoints
+import model
+
+@app.route('/')
+def index():
+    return "hello?" 
+
+@app.route('/stitch')
+def stitch():
+	return "stitch..."
 
 @app.route('/link', methods=['POST'])
 @utils.needs_parameters('apns_token', 'streamer_name')
@@ -62,4 +71,4 @@ def unlink(apns_token, streamer_name):
 
 if __name__ == '__main__':
     model.create_tables()
-    app.run(host='0.0.0.0', debug=True)
+    app.run(debug=True)
