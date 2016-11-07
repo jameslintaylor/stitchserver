@@ -1,0 +1,6 @@
+flask
+celery
+requests
+peewee
+redis
+apns
