@@ -42,3 +42,23 @@ def accepts_parameters(*params):
             return f(*args, **kwargs)
         return decorated
     return decorator
+
+# extracts the list parameters from either request.args or request.form
+# (in_ can either be 'args' or 'form'). Follows the convention that list keys
+# are postfixed by [] square braces. missing parameters are replaced
+# with None
+def accepts_list_parameters(*params):
+    def decorator(f):
+        @functools.wraps(f)
+        def decorated(*args, **kwargs):
+            # expect parameters in either the query or form dependent
+            # on the type of request being made
+            d = {
+                'GET': flask.request.args,
+                'POST': flask.request.form
+            }[flask.request.method]
+            # pass on the named parameters to the decorated function
+            kwargs.update({param: d.getlist(param + "[]") for param in params})
+            return f(*args, **kwargs)
+        return decorated
+    return decorator

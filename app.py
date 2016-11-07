@@ -15,14 +15,6 @@ app.config.from_object(__name__)
 import endpoints
 import model
 
-@app.route('/')
-def index():
-    return "hello?" 
-
-@app.route('/stitch')
-def stitch():
-	return "stitch..."
-
 @app.route('/link', methods=['POST'])
 @utils.needs_parameters('apns_token', 'streamer_name')
 def link(apns_token, streamer_name):
@@ -48,7 +40,7 @@ def link(apns_token, streamer_name):
     except peewee.IntegrityError:
         return "link already exists!", 400
 
-    return "ok!"
+    return "ok!", 200
 
 @app.route('/unlink', methods=['POST'])
 @utils.needs_parameters('apns_token', 'streamer_name')
@@ -68,6 +60,34 @@ def unlink(apns_token, streamer_name):
 
     link.delete_instance()
     return "ok!"
+
+@app.route('/status', methods=['GET', 'POST'])
+# accepts either a streamer_name in the query of a get request, or the
+# streamer_names list in the body of a post request
+@utils.accepts_parameters('streamer_name')
+@utils.accepts_list_parameters('streamer_names')
+def status(streamer_name, streamer_names):
+    # return a single streamer status
+    if streamer_name:
+        try:
+            streamer = model.Streamer.get(name=streamer_name)
+            return flask.jsonify(streamer.serialized)
+        except model.Streamer.DoesNotExist:
+            return "shit", 400
+
+    # return multiple streamer statuses
+    elif streamer_names:
+        streamers = []
+        for streamer_name in streamer_names:
+            try:
+                streamers.append(model.Streamer.get(name=streamer_name))
+            except model.Streamer.DoesNotExist:
+                continue
+        return flask.jsonify({ streamer.name: streamer.serialized for streamer in streamers })
+
+    # bad api use
+    else:
+        return "you suck"
 
 if __name__ == '__main__':
     model.create_tables()

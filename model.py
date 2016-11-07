@@ -12,6 +12,14 @@ class Streamer(flask_db.Model):
     # the streamer's stream status (live or offline)
     is_live = peewee.BooleanField()
 
+    @property
+    def serialized(self):
+        return {
+            'name': self.name,
+            'status': self.status,
+            'is_live': self.is_live
+        }
+
 class Device(flask_db.Model):
     apns_token = peewee.CharField(unique=True)
 
