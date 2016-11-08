@@ -82,5 +82,19 @@ def link(apns_token, streamer_name):
     link.delete_instance()
     print("ok!")
 
+@cli.command('following')
+@click.option('--apns-token', '-t')
+def following(apns_token):
+
+    query = (model.Link
+             .select()
+             .join(model.Device)
+             .where(model.Device.apns_token == apns_token))
+
+    for l in query:
+        print(l.streamer.name)
+
+    print("done")
+
 if __name__ == '__main__':
     cli()

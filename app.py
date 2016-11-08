@@ -89,6 +89,18 @@ def status(streamer_name, streamer_names):
     else:
         return "you suck"
 
+@app.route('/following')
+@utils.needs_parameters('apns_token')
+def following(apns_token):
+    # query all links for this apns_token
+    query = (model.Link
+             .select()
+             .join(model.Device)
+             .where(model.Device.apns_token == apns_token))
+
+    streamers = [l.streamer for l in query]
+    return flask.jsonify({ streamer.name: streamer.serialized for streamer in streamers })
+
 if __name__ == '__main__':
     model.create_tables()
     app.run(debug=True)
