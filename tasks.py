@@ -47,9 +47,10 @@ class Notification:
         return self.last_id
 
 # helper function to push a text alert to multiple devices
-def push_alert(alert, devices, gateway):
+def push_alert(alert, user_info, devices, gateway):
     payload = apns.Payload(alert=alert,
-                           sound="default")
+                           sound="default",
+                           custom=user_info)
     notification = Notification(payload)
     notification.add_targets(devices)
 
@@ -101,7 +102,7 @@ def update_db():
             streamer.save()
             # push notification!
             alert = "{} status change! \"{}\"".format(streamer.name, status)
-            push_alert(alert, devices, apns_gateway)
+            push_alert(alert, streamer.serialized, devices, apns_gateway)
         else:
             print("{} still \"{}\"".format(streamer.name, status))
 
@@ -114,7 +115,7 @@ def update_db():
             alert = ("{} went {}!"
                      .format(streamer.name,
                              "live" if is_live else "offline"))
-            push_alert(alert, devices, apns_gateway)
+            push_alert(alert, streamer.serialized, devices, apns_gateway)
         else:
             print("{} still {}"
                   .format(streamer.name,
