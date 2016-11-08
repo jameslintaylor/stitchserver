@@ -83,7 +83,7 @@ def status(streamer_name, streamer_names):
                 streamers.append(model.Streamer.get(name=streamer_name))
             except model.Streamer.DoesNotExist:
                 continue
-        return flask.jsonify({ streamer.name: streamer.serialized for streamer in streamers })
+        return flask.jsonify({ "streamers": [streamer.serialized for streamer in streamers]})
 
     # bad api use
     else:
@@ -99,7 +99,7 @@ def following(apns_token):
              .where(model.Device.apns_token == apns_token))
 
     streamers = [l.streamer for l in query]
-    return flask.jsonify({ streamer.name: streamer.serialized for streamer in streamers })
+    return flask.jsonify({ "streamers": [streamer.serialized for streamer in streamers]})
 
 if __name__ == '__main__':
     model.create_tables()
